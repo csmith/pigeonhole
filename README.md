@@ -33,6 +33,33 @@ defaults to `pigeonhole.db` in the current directory.
 The address to listen for HTTP connections on. If not specified,
 defaults to `:8080`.
 
+## Running
+
+`pigeonhole` is designed to run in Docker:
+
+```docker-compose
+services:
+  pigeon:
+    image: ghcr.io/csmith/pigeonhole:dev
+    restart: always
+    environment:
+      DB: "/data/pigeonhole.db"
+      TOKENS: "some-token-here:cubby1;some-other-token:cubby2;etc:etc"
+      LISTEN: ":8080"
+    volumes:
+      - data:/data
+
+volumes:
+  data:
+```
+
+You should run `pigeonhole` behind a TLS-terminating reverse proxy like
+[Centauri](https://github.com/csmith/centauri), 
+[Caddy](https://caddyserver.com/), etc. Alternatively you could expose
+it over a secure VPN e.g. by using [thp](https://github.com/greboid/thp)
+to connect it to Tailscale. Either way, don't expose plain HTTP to the
+Internet!
+
 ## API
 
 `pigeonhole` has a very simple API design:
