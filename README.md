@@ -40,7 +40,7 @@ defaults to `:8080`.
 ```docker-compose
 services:
   pigeon:
-    image: ghcr.io/csmith/pigeonhole:dev
+    image: ghcr.io/csmith/pigeonhole:latest
     restart: always
     environment:
       DB: "/data/pigeonhole.db"
