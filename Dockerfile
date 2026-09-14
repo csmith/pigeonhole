@@ -9,7 +9,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     ; \
     mkdir -p /mounts/data;
 
-FROM ghcr.io/greboid/dockerbase/nonroot:1.20250803.0
+FROM ghcr.io/greboid/dockerbase/nonroot:1.20260714.0
 COPY --from=build /go/bin/pigeonhole /pigeonhole
 COPY --from=build /notices /notices
 COPY --from=build --chown=65532:65532 /mounts /
