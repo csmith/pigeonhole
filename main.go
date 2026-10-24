@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -63,9 +64,13 @@ func main() {
 				middleware.RealAddress(),
 				middleware.Compress(),
 				middleware.CrossOriginProtection(),
-				middleware.Recover(middleware.WithPanicLogger(func(r *http.Request, err any) {
-					slog.Error("Panic recovered", "error", err)
-				})),
+				middleware.Recover(
+					middleware.WithPanicLogger(
+						func(r *http.Request, err any) {
+							slog.Error("Panic recovered", "error", err)
+						},
+					),
+				),
 			),
 		)(mux),
 	}
@@ -98,7 +103,7 @@ func parseTokens(s string) (map[string]string, error) {
 	tokens := make(map[string]string)
 
 	if s == "" {
-		return nil, fmt.Errorf("no auth tokens specified")
+		return nil, errors.New("no auth tokens specified")
 	}
 
 	pairs := strings.SplitSeq(s, ";")
