@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/subtle"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -27,7 +28,7 @@ func requireToken(tokens map[string]string) func(http.Handler) http.Handler {
 				token := strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer "))
 				cubby := r.Context().Value(contextKeyCubby).(string)
 
-				allowed, ok := tokens[token]
+				allowed, ok := lookupToken(tokens, token)
 				if !ok || (allowed != "*" && allowed != cubby) {
 					slog.Info("Denied access to cubby", "cubby", cubby, "client", r.RemoteAddr)
 					http.Error(w, "Unauthorized", http.StatusForbidden)
@@ -54,4 +55,19 @@ func extractCubby() func(http.Handler) http.Handler {
 			},
 		)
 	}
+}
+
+// lookupToken finds the cubby a token grants access to. Every configured
+// token is compared in constant time so response timing doesn't reveal how
+// close a guess was.
+func lookupToken(tokens map[string]string, token string) (string, bool) {
+	var cubby string
+	found := false
+	for t, c := range tokens {
+		if subtle.ConstantTimeCompare([]byte(t), []byte(token)) == 1 {
+			cubby = c
+			found = true
+		}
+	}
+	return cubby, found
 }
