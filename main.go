@@ -11,6 +11,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/csmith/envflag/v2"
 	"github.com/csmith/middleware"
@@ -56,7 +57,11 @@ func main() {
 	mux.Handle("DELETE /", handleDelete(store))
 
 	server := &http.Server{
-		Addr: *listenAddr,
+		Addr:              *listenAddr,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       120 * time.Second,
 		Handler: middleware.Chain(
 			middleware.WithMiddleware(
 				requireToken(tokens),
@@ -88,7 +93,9 @@ func main() {
 	<-sigChan
 
 	slog.Info("Shutting down server...")
-	if err := server.Shutdown(context.Background()); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
 		slog.Error("Error during shutdown", "error", err)
 		os.Exit(1)
 	}
