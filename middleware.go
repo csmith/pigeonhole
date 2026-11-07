@@ -25,11 +25,17 @@ func requireToken(tokens map[string]string) func(http.Handler) http.Handler {
 				}
 
 				token := strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer "))
-				cubby := r.Context().Value(contextKeyCubby)
+				cubby := r.Context().Value(contextKeyCubby).(string)
 
-				if tokens[token] != cubby && tokens[token] != "*" {
-					slog.Info("Denied access to cubby", "token", token, "cubby", cubby, "client", r.RemoteAddr)
+				allowed, ok := tokens[token]
+				if !ok || (allowed != "*" && allowed != cubby) {
+					slog.Info("Denied access to cubby", "cubby", cubby, "client", r.RemoteAddr)
 					http.Error(w, "Unauthorized", http.StatusForbidden)
+					return
+				}
+
+				if cubby == "" {
+					http.NotFound(w, r)
 					return
 				}
 
