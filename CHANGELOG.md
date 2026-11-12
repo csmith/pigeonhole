@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0 - 2026-11-12
+
+- Add HTTP timeouts
+- Fix various token comparison issues
+- Update to Go 1.27.4
+
 ## 1.0.1 - 2026-10-24
 
 ### Fixed
