@@ -5,7 +5,7 @@ COPY . .
 RUN --mount=type=cache,target=/go/pkg/mod \
     set -eux; \
     CGO_ENABLED=0 GO111MODULE=on go install .; \
-    go run github.com/google/go-licenses@latest save ./... --save_path=/notices \
+    go tool go-licenses save ./... --save_path=/notices \
     ; \
     mkdir -p /mounts/data;
 
