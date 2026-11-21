@@ -5,8 +5,8 @@ COPY . .
 RUN --mount=type=cache,target=/go/pkg/mod \
     set -eux; \
     CGO_ENABLED=0 GO111MODULE=on go install .; \
-    go tool go-licenses save ./... --save_path=/notices \
-    ; \
+    mkdir -p /notices; \
+    go tool gocredits -skip-missing . > /notices/CREDITS; \
     mkdir -p /mounts/data;
 
 FROM ghcr.io/greboid/dockerbase/nonroot:1.20261022.0
